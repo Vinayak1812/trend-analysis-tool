@@ -1,35 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import AdminDashboard from './pages/AdminDashboard';
+import OwnerDashboard from './pages/OwnerDashboard';
+import ForgotPassword from './pages/ForgotPassword';
+import ProtectedRoute from './components/ProtectedRoute'; // <--- Import the Bouncer
+import HotelDetails from './pages/HotelDetails';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* --- PROTECTED ADMIN ROUTE --- */}
+        {/* Logic: "Only render AdminDashboard if the userRole is 'admin'" */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        {/* NEW: DYNAMIC ROUTE FOR HOTEL DETAILS */}
+        {/* The ":id" part is the variable */}
+        <Route 
+          path="/hotel/:id" 
+          element={
+            <ProtectedRoute allowedRole="admin">
+              <HotelDetails />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* --- PROTECTED OWNER ROUTE --- */}
+        <Route 
+          path="/owner" 
+          element={
+            <ProtectedRoute allowedRole="owner">
+              <OwnerDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
